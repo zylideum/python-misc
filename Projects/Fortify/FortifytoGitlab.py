@@ -7,7 +7,7 @@ gitlabResults = {
 }
 
 # Converts default Fortify SCA XML report to JSON file
-def convertToXML():
+def convertToJSON():
 	with open("test.xml") as xmlFile:
 		loadedXML = xmltodict.parse(xmlFile.read())
 		newJSONData = json.dumps(loadedXML, indent=4)
@@ -29,35 +29,35 @@ def buildSASTReport(results):
 		for issues in results:
 			coreInfo = issues['Issue']
 			gitlabResults['vulnerabilities'].append({
-					"id": issues['groupTitle'],
-					"category": "fortify_sast", #may need to change to sast
-					"message": issues['groupTitle'] + " in " + coreInfo['Primary']['FileName'] + " on line " + coreInfo['Primary']['LineStart'],
-					"description": coreInfo['Abstract'],
-					"severity": coreInfo['Friority'],
-					"confidence": "Unknown",
-					"solution": issues['MajorAttributeSummary']['MetaInfo'][2]['Value'],
-					"scanner": {
-						"id": "fortifycli",
-						"name": "FortifySCA"
-					},
-					"location": {
-						"file" : coreInfo['Primary']['FilePath'],
-						"start_line": coreInfo['Primary']['LineStart'],
-						"method": coreInfo['Primary']['TargetFunction'],
-						"dependency": {
-							"package": {}
-						}
-					},
-					"identifiers": [
-						{
-						"type": "fortify_ruleID",
-						"name": "@ruleID",
-						"value": coreInfo['@ruleID'],
-						#may need removal
-						"snippet": coreInfo['Primary']['Snippet']
-						}
-					]
-				})
+				"id": issues['groupTitle'],
+				"category": "fortify_sast", #may need to change to sast
+				"message": issues['groupTitle'] + " in " + coreInfo['Primary']['FileName'] + " on line " + coreInfo['Primary']['LineStart'],
+				"description": coreInfo['Abstract'],
+				"severity": coreInfo['Friority'],
+				"confidence": "Unknown",
+				"solution": issues['MajorAttributeSummary']['MetaInfo'][2]['Value'],
+				"scanner": {
+					"id": "fortifycli",
+					"name": "FortifySCA"
+				},
+				"location": {
+					"file" : coreInfo['Primary']['FilePath'],
+					"start_line": coreInfo['Primary']['LineStart'],
+					"method": coreInfo['Primary']['TargetFunction'],
+					"dependency": {
+						"package": {}
+					}
+				},
+				"identifiers": [
+					{
+					"type": "fortify_ruleID",
+					"name": "@ruleID",
+					"value": coreInfo['@ruleID'],
+					#may need removal
+					"snippet": coreInfo['Primary']['Snippet']
+					}
+				]
+			})
 	else:
 		print("No results found.")
 
@@ -66,7 +66,7 @@ def exportGitLabReport():
 	with open("report.json", 'w') as finalReport:
 		finalReport.write(json.dumps(gitlabResults, indent=4))
 
-convertToXML()
+convertToJSON()
 generateResults()
 buildSASTReport(generateResults())
 exportGitLabReport()
